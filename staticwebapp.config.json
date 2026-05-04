@@ -1,0 +1,25 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/index.html.html",
+      "statusCode": 200
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html.html",
+    "exclude": [
+      "*.{css,scss,js,png,gif,ico,jpg,jpeg,svg,woff,woff2}",
+      "/images/*"
+    ]
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+    ".eot": "application/vnd.ms-fontobject",
+    ".ttf": "font/ttf",
+    ".otf": "font/otf",
+    ".svg": "image/svg+xml"
+  }
+}

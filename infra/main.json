@@ -1,0 +1,100 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "15989938060359796084"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "southeastasia"
+    },
+    "staticWebAppName": {
+      "type": "string",
+      "defaultValue": "swa-madaan-ca"
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "rg-madaan-ca-southeast"
+    },
+    "gitHubOwner": {
+      "type": "string"
+    },
+    "gitHubRepo": {
+      "type": "string"
+    },
+    "gitHubBranch": {
+      "type": "string",
+      "defaultValue": "main"
+    },
+    "gitHubToken": {
+      "type": "string"
+    },
+    "appLocation": {
+      "type": "securestring",
+      "defaultValue": "/"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2023-12-01",
+      "name": "[parameters('staticWebAppName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "environment": "production",
+        "project": "madaan-ca",
+        "owner": "CA Rishabh Madaan"
+      },
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "properties": {
+        "repositoryUrl": "[format('https://github.com/{0}/{1}', parameters('gitHubOwner'), parameters('gitHubRepo'))]",
+        "branch": "[parameters('gitHubBranch')]",
+        "buildProperties": {
+          "appLocation": "[parameters('appLocation')]",
+          "skipGithubActionWorkflowGeneration": false
+        },
+        "provider": "GitHub"
+      }
+    },
+    {
+      "type": "Microsoft.Web/staticSites/sourcecontrols",
+      "apiVersion": "2023-12-01",
+      "name": "[format('{0}/{1}', parameters('staticWebAppName'), 'github')]",
+      "properties": {
+        "repoToken": "[parameters('gitHubToken')]",
+        "branch": "[parameters('gitHubBranch')]",
+        "repositoryUrl": "[format('https://github.com/{0}/{1}', parameters('gitHubOwner'), parameters('gitHubRepo'))]",
+        "provider": "GitHub"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "staticWebAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName'))]"
+    },
+    "staticWebAppName": {
+      "type": "string",
+      "value": "[parameters('staticWebAppName')]"
+    },
+    "staticWebAppUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName')), '2023-12-01').defaultHostname]"
+    },
+    "staticWebAppCustomDomainUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', parameters('gitHubRepo'))]"
+    }
+  }
+}
